@@ -1,0 +1,92 @@
+Data and Attributes
+Fetch API: works similar to promise
+	fetch("https://swapi.co/api/planets/1/")				=> data from an api
+		.then(data => data.json())
+		.catch(err => console.log(err.message));
+Example1:
+	HTML: <div id="planet"><button>click for planet</button></div>
+	const myDiv = document.getElementById("planet");
+	const myButton = myDiv.querySelector("button");
+	myButton.addEventListener("click",getPlanet);
+	function getPlanet(){
+		const randomNum = Math.floor(Math.random()*10)+1;
+		fetch(`https://swapi.co/api/planets/${randomNum}/`)		=> gets a random planet
+			.then(data => data.json())				=> convert it to readable format
+			.then(d => populatePlanet(d))				=> call function to change html
+			.catch(err => console.log(err.message));
+	}
+	function populatePlanet(planetObj){					=> or just {name} if the only required element is name
+		const {name, climate, terrain, population, orbital} = planetObj;
+		const planetPara =`											
+			<div>							=> add div to html
+				<h1>${name}</h1>
+				<p> ${name} has	a climate that is ${climate}. The terrain is ${terrain}...</p>
+			</div>
+		`
+		myDiv.innerHTML = planetPara;
+	}
+IF DOM METHOD WAS NOT USED, THE EVENTLISTENER WILL NOT TRIGGER A SECOND TIME (ABOVE CODE IS FAULTY)
+when append or add to innerHTML directly, the child elements and the event listener are destroyed (solution below)
+	function populatePlanet(planetObj){					
+		const {name, climate, terrain, population, orbital} = planetObj;
+		const myPlanetDiv = document.createElement("div");		=> new div
+		const planetPara =`						
+				<h1>${name}</h1>
+				<p> ${name} has	a climate that is ${climate}. The terrain is ${terrain}...</p>
+		`
+		myPlanetDiv.innerHTML = planetPara;
+		myDiv.appendChild(myPlanetDiv);									
+	}	
+Another way for this problem: insertAdjacentHTML
+	instead of myDiv.innerHTML = planetPara;
+	myDiv.insertAdjacentHTML("beforeend", planetDiv);			=> can be "afterbegin", "beforebegin".. (beforebegin inserts outside in front of div, while afterbegin is inside at the start)
+
+If i want to get all the planets at the same time:
+	function getPlanet(){
+		fetch(`https://swapi.co/api/planets/`)
+			.then(data => data.json())		
+			.then(planets => processPlanets(planets.results));	
+	}
+	function processPlanets(planetsArray){
+		for (const prop of planetsArray){ populatePlanet(prop); }
+	}
+
+If i want to go to the next page after fetching the objects:
+	function getPlanet(){
+		fetch(`https://swapi.co/api/planets/`)
+			.then(data => data.json())		
+			.then(planets => fetch(planets.next))
+			.then(moreplanets => console.log(morePlanets);		=> if there are more planets on the second page		
+	}
+To replace http with https:
+	.then(planets => {
+		const {next} = planets;
+		const newURL = next.replace(/^http:\/\//i, "https://");
+		return fetch(newURL)
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
