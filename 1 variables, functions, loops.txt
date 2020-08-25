@@ -1,0 +1,316 @@
+Mammoth Interactive
+
+
+Basic Types: 
+Numbers:
+typeof 10; => console will output "number"
+parseInt("string", baseNum) => ("10",2) gives 2 
+isNaN("hello") => true if value is not number
++"10" => converts string to number 
+Strings:
+"string".length (no () needed)
+"string".charAt(0)
+"string1" + "string2"
+"string".toUpperCase()
+"string1 string2".split(" "); 		=> separate a string by spaces, ouput array of strings
+parseInt("string").toLocaleString() 	=>if it's a long number, it will put commas every three numbers. For more, see https://www.techonthenet.com/js/number_tolocalestring.php
+const arr = Array.from("string");	=> convert string to seperate letters in arr
+
+Booleans:
+Boolean(var) => true if var is not empty string/0/no value/false (pretty useless)
+null != undefined
+console.log(!var) => true if null/undefined
+
+
+variables:
+var varName = 0; => scoped to function (lead to bugs, avoid)
+let varNmae = 0; => scoped to block {}
+const varName = 0; => scoped to block, cannot be changed (if it's an array it can be pushed)(if it's an array property can be changed)
+
+
+Arrays:
+var arr = new Array();
+var arr = [1,2,3,"bob"];
+arr[0]	=> access val in array
+arr[1] = val => change existing value or create another value
+var finalarr = arr1.concat(arr2,arr3);
+... = arr.sort();
+... = arr.reverse();
+... = arr.length();
+... = arr.toString()
+arr.pop();
+arr.push(1,2,3); => adds items at the end of the array
+arr.splice(insert index,remove first x elements,items to insert);	=> changes the original array
+arr.slice(index inclusive, index exclusive);				=> takes a part of the array, not destructive
+arr.join(" "); 	=> converts arr into one string with 1 space separating items
+arr.lastIndexOf(item) => index of last appearance of item (-1 if not there)
+arr.unshift(item) => adds item at the front & outputs length
+const map1 = arr.map(x => x*2); => goes through arr, multiple every item by 2, populate new arr
+
+Objects (dictionary in python, key value pairs):
+var objectname = new Object(); //first way to initialize
+myObject["1"] = "property";
+var objectname = {item1: "property1", item2: "property2"}; //second way to init
+objectname.item1 OR objectname['item1']			=> access the values pointed to a key
+var objectnmae = { 		=> nested objects
+	item1: {
+		item1sub1: "1234",
+		item1sub2: "val",
+	},
+objectname.item1.item1sub1 => reach two levels into the object
+var objectname = {
+	item1: ,
+	item2: ,
+	item3:function(a){ return something } => a doesn't get used (call using objectname.item3();)
+	item4:function(){
+		console.log(this.item1);	 => displays item1 value
+	)
+}
+function objectConstructor(item1, item2, item3){ => object constructor
+	this.item1 = item1;
+	this.item2 = item2;
+	this.item3 = function(){
+		console.log(this.item1);
+	}
+}
+var objectname = new objectConstructor("prop1", "prop2", "prop3"); => initialize a new object
+objectname.item4 = val; 	=> add another key value pair for the object
+replace object name: const {item5: item1} = objectName;		=> replace key from item1 to item 5
+Computered property keys: allows use of [] which will evaluate/compute as the property name
+	let myID = 0;
+	const idParam = "userID";
+	const computedObj = {				=> can use "++myID" instead of "(myID+=1)"
+		[idParam + (myID+=1)]: "12345",		=> the key is userID1 instead of myID
+		[idParam + (myID+=1)]: "1234567",	=> key is userID2
+		[funcName(input)]: "werthgfds",		=> key is function output
+	}
+	
+Shorthand:
+	const a=10;
+	const b=20;
+	const c=30;
+	const d={	instead of: const d = {
+		a,			a: a,
+		b,			b: b,
+		c,			c: c,			
+	{			    }
+Returning objects shorthand:
+	function objectBuilder(x,y,z){
+		return {
+			x,
+			y,
+			z,
+		}
+	}
+	obj = objectBuilder(10,"bob",false);
+
+Methods: function inside objects
+	old way: sayHi: function() {console.log("hi"); }	=> function expressions
+	new way: sayHi() {console.log("hi");}			=> method definitions
+	call with: objName.sayHi();
+	call object function within function: func1(...arg){ this.func2(arg[0]); }	=>using rest syntax
+
+
+Maps: for simple key/value pairs, any type of value can be used for either a key or value
+maps vs objects: object prototype has default keys that might conflict with own keys
+		-keys of map can be anything (object, function..) whereas with objects have to be string or symbol
+		-can easily get size of map
+	Map.prototype					=> all possible operations on a map
+	const myMap = new Map();			=> initalize
+	myMap.set("key","value");			=> put in key value pairs, can be repeated many times
+	myMap.size					=> outputs size of map
+	myMap.get(key)					=> get the value corresponding to key
+	myMap.has(key)					=> check if map has a certain key
+	myMap.forEach((val) => console.log(val))	=> prints out all the values in map
+	myMap.delete(key)				=> deletes a key value pair
+	const arr = Array.from(myMap);			=> convert map to arr (comes in 2d arr)
+Iterator for map:
+	myMap.entries()					=> for(const [key,value] of myMap.entries())
+	myMap.values()
+	myMap.keys()
+Initialize in another way:
+	const myMapData = [["key1", "val1"],["key2","val2"]];
+	const mapName = new Map(myMapData);
+	const mapName = new Map([			=> combines top two lines
+		["key1", "val1"],
+		["key2", "val2"],
+	]);
+
+
+sets: similar to arr, no duplicates allowed
+	const mySet = new Set();
+	mySet.add(val);					=> val can be anything (obj too)
+	const mySet = new Set(arr);			=> convert arr to set
+	const arr = Array.from(mySet);			=> convert set to arr
+	const arr = [...mySet];				=> second way to convert set to arr`
+	mySet.delete(val);
+	mySet.has(val);
+	mySet.forEach((s) => {	//code; });
+	for(const val of mySet.values()){ //code; }	=> basically a for loop to loop through the values (.keys() do the same)
+
+
+math stuff:
+var randnum = Math.random(); => between 0 and 1
+var randnum = Math.floor(Math.random()*10); => integer between 0 and 9 (Math.ceil for up)
+Math.min(list of #); (max too)
+Math.round(5.9); => proper rounding rule
+Math.PI;
+
+
+Dates:
+var date = new Date();
+date.getHours() / date.getMinutes() / date.getMonth() / date.getSeconds() / date.getTime()
+date.setFullYear(2030,0,14)
+
+
+if statements:
+if (compare){ //code; } else if (compare) { //code; } else { //code; }
+if (boolval) => works too (or if (!booval))
+10 == "10" => equality operators, outputs true
+10 === "10" => identity operators, outputs false (generally use this)
+arr1 = [1,2,3]; arr2 = [1,2,3]; arr1 === arr2 & arr1 == arr2 return false => different memory location (same with objects)
+not equals is "!=="
+if condition is satisfied and don't want to do anything, use "continue;" (breaks current loop and runs loop again)
+
+
+For loops:
+	for (i=0; i<5; i++){ var += i + <br> } => display 01234 vertically
+using break; to break loop
+In nested loops, can use label to break out parent loop
+	outerloop:
+	for(i..){
+		innerloop:
+		for(){break outerloop;}}
+using setTimeout but same i is used, instead do:
+	function loop(var){
+		setTimeout(function(){
+			console.log(value);
+		}, 1000);		=> do var*1000 if i want them to appear in 1000ms intervals
+	}
+	for (var i=0;..){loop(i);}
+OR
+	for(let i=0;..){setTimeout(...);}
+For in loops:		=> loop through an object's key in random order
+	const objectName = {1: "prop1", 2: "prop2"};
+	for (let var in objectName){ console.log(var);}		=> outputs key values, can use objectName(var)
+For each loops: 	=> loops through something without needing to know length (no object), cannot use continue or break on
+	arr.forEach(function(var){ //code; }
+For of loops:		=> goes through iterables (arr,strings,maps,sets), replaces for each and for in (not sure about objects)
+	for (const var of iterableName){ //code; }
+
+
+
+While loops:
+while(x <= 5){ x+=1; }
+while(true){ break; ) 
+Do while loops:		=> a while loop that runs at least once and compares after running code
+do{ //code; } while (compare)
+
+
+Screen properties:
+var = screen.width + screen.height; (screen.availWidth; screen.pixelDepth; screen.colorDepth;)
+var = window.innerWidth; (window.innerHeight)
+
+Prototypes:
+var x1 = new objectPrototype("item1 details","item2 details (can be var)");
+function objectPrototype (item1, item2){
+	this.item1 = item1;
+	this.item2 = item2;
+}
+access by x1.item1
+
+
+functions:
+function funcName(){
+	//code;
+}
+funcName() => call function
+function funcName(var1, var2){ //code; }
+funcNmae(var1Val, var2Val) => call function
+return varOrNum; => quit func and return value;
+const funcName = function(){} => makes function like a variable - passable into another function
+function funcName1(var1){	=> nested function
+	function funcName2(var2){return var2*2;}
+	return funcName2(var1);	=> funcName1 cannot access var2
+}
+
+Arrow functions: 
+before: function funcName(var1, var2) {return var1+var2;}
+after: var funcName = (var1, var2) => {return var1+var2;}	
+ex1: const users = [arr of users];	=> initialize users for func below
+     const userNameList = users.map(function(user){	=> .map goes through every item
+	return user.name; => extracts names of users
+     }); 
+     const userNameList = users.map((user) => {	=> alternative: using arrow to replace function
+	return user.name;
+     });
+ex2: const funcName = (var1, var2) => var1+var2; => skip brackets and return for one line, returns sum
+ex3: const filter = arr.filter(function(num){return num%2===0;}); 	=> return even numbers in an array
+     simplify: const filter = arr.filter((num) => {return num%2===0;});
+     again:	  const filter = arr.filter((num) => num%2===0);
+cannot be used to initialize prototypes
+however if function is initalized in prototype and need to access "this", need to use arrow
+because the "function" keyword initalizes its own "this"
+
+
+Default values: 
+	old way: function funcName(var){var=var||5; return 2*var;}	=> will assume 5 and return 10 if only funcName() called
+	new way: function funcName(var=5){return var*2;}
+
+Rest parameters: get an array from the list of parameters
+	old way: function funcName(var){} => can pass multiple inside with no errors???????
+	new way: function funcNmae(var1, ...var2){} => var2 contains the excess values passed in
+
+Spread Syntax: the opposite of rest parameters (get list of parameters from array)
+example1:	
+	const arr1 = [1,2,3];
+	const arr2 = [4,5,6];
+	const arr3 = [...arr1, ...arr2]		=> combines two arr (arr.push(arr2) result in [1,2,3, [4,5,6]]
+	const arr3 = arr1.push(...arr2);	=> another way (arr1 changes)
+example2:
+	function sayHello(x,y,z){ console.log(`Hello, ${x}, ${y}, ${z}`}
+	const helloArray = ["bob", "jane", "peter"];
+	sayHello(...hellowArray);		=> break arr into multiple pieces then apply into function
+example3: 
+	const arr2 = [...arr1];			=> makes a distinctive arr2 from arr1 (changing 1 won't change 2)
+
+Switch statement: similar to if else
+switch(expression){
+	case value1:		=>if
+		//code... break;
+	case value2:		=>else if
+		//code... break;
+	case value3;
+	case value4;		=> value 3 or value 4
+		//code... break;
+	...
+	default:		=> similar to else
+		//code... break;
+}
+
+
+user input through popup:
+const var = prompt("promptText");
+
+alert("text");
+console.log("text");
+
+
+setTimeout(function(){ //code; }, 1000)		=> one time
+can use it as: => if i don't want an event to fire too many times
+let timer; 
+function funcName(e){
+	clearTimeout(timer); 
+	timer = setTimeout(() => {element.innerText = "";},1000)
+}
+
+
+setInterval(function(){ //code; }, 1000)	=> repeating
+
+
+
+
+
+
+
+
