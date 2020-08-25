@@ -1,0 +1,271 @@
+Node JS
+What is Node? 
+	Runtime environment built on GooogleV8 JavaScript engine used in Chrome
+	allow to use javascript outside of browser context (on computer or server), support for HTTP, reading from/writing to files
+	runs all clients on a single thread and i/o operations are event-based. This makes it highly scaleable compared to traditional server side languages
+uses event loop: 
+	once script executes, node reggister events and enters an event loop where it checks for events continuously
+	triggers a callback when an event is detected. asynchoronously and non blocking
+Why node:
+	very fast
+	plain JS
+	NPM => node package manager, can import some code other people wrote so don't have to write everything
+go to nodejs.org for documentation
+
+Run node in command prompt
+	type "node" in command prompt, then can write short node(JS) code. if type { at end of line, can type more than one line until }
+	var and function will be saved after enter
+	exit with Ctrl + C twice
+
+run existing js file:
+	cd into file dir
+	"node" + filename (.js is optional) such as "node hello" or "node hello.js"
+
+
+modules: if something needed is in another file: (export)
+	In first file: 
+		exports.word = "wordvalue";				=> replace word, "wordvalue"
+		exports.name = "namevalue";				=> can have multiple entries
+		exports.squarer = function(num){			=> can export function
+			return num*num;
+		}
+		const magicNum = 13;					=> magicNum cannot be accessed (kept safe)
+		export.mult = function(num){
+			return num*magicNum;
+		}
+	In second file: 
+		const myWord = require('./firstfile.js');		=> replace ./firstfile.js with dir location of first file, ./ means same dir, .js optional
+		function sayHello(){console.log("Hello " + myWord.word + " this is " + myWord.name);}	=> replace normal var name with myWord.word
+		sayHello();
+		console.log(myWord.squarer(10));			=> use imported function	
+ORRRRRR export a whole module
+	In first file:
+		const magicNum = 13;
+		module.exports = {
+			word: function() {
+				return 'everyone';
+			},
+			name: function() {
+				return 'Billy';
+			},
+			mult: function(num) {
+				return num*magicNum;
+			}
+		}
+	In second file:
+		const myWord = require('./firstfile.js');		
+		function sayHello(){console.log("Hello " + myWord.word() + " this is " + myWord.name());}	=> add () after imported var because they're defined as funcs	
+		sayHello();
+		console.log(myWord.squarer(10));			
+Can have multi layer modules:
+	in dog.js:
+		exports.bark = "woof";
+	in hello2.js:
+		const dog = require('./dog');
+		module.exports = {
+			woof: function() {
+				return dog.bark();
+			}
+		}
+	in hello.js
+		const myWord = require('./hello2');
+		console.log(myWord.woof());							=> reaches into hello2 then into dog
+
+Reading, Writing and compressing textfiles
+	create txt file in command:
+		touch test.txt										=> replace test with wanted name
+		echo "node is the coolest" >> filename.text			=> put text in file
+	Read file: synchronous version
+		const fs = require('fs');							=> import core modules (built in); no need for ./ (fs = file system. more in nodejs.org)
+		const filename = 'test.txt';						=> if filename has spaces, use\ ('introduction\ to\ Node.md')
+		const text = fs.readFileSync(filename, 'uft8')		=> calls readFileSync function in fs and assigns to text var, text now has contents of test.txt
+	Read file: async
+		const fs = require('fs');
+    		const filename = 'test.txt';					=> same until here
+		fs.readFile(fileName, 'utf8', function(err, data) {	=> similar with error handling, can use ES6 format "fs.readFile(fileName, 'utf8', (err, data) => {
+			if (err) {										=> if there is an error
+				throw err;
+			}
+			console.log(data);								=> do something with data
+		});
+		console.log('this will get logged to console first b/c async');
+	OR
+		function myCallback(err, data) {					=> put everything into a separate function to be called
+			if (err) {					
+				throw err;
+			}
+			console.log(data);
+		}
+		fs.readFile(fileName, 'utf8', myCallback);
+
+	Read file: stream					=> data handling method. reads data in chunks instead of all at once. good with large amounts of data
+		const fs = require('fs');
+    		const filename = 'test.txt';
+		const readStream = fs.createReadStream(filename, 'utf8');
+		let myData = '';
+		let totalChunks = 0;
+
+		readStream.on('data', (chunk) =>{
+			myData += chunk;
+			totalChunks += 1;
+			console.log(totalChunks);
+		});
+		readStream.on('end', () => {
+			console.log('Finished reading data');
+		});
+		readStream.on('error', (err) => {
+			throw err;
+		});
+
+	Write file: stream1
+		const fs = require('fs');
+		const filename = 'test.txt';
+		const readStream = fs.createReadStream(filename, 'utf8');	=> same as before
+		const writeStream = fs.createWriteStream('output.txt', 'utf8');	=> send data to output.txt
+		readStream.pipe(writeStream);								=> read the file test.txt from above, then pipe data to output.txt
+	Write file: stream2
+		const fs = require('fs');
+		const filename = 'test.txt';
+		const readStream = fs.createReadStream(filename, 'utf8');	=> same as before
+		const writeStream = fs.createWriteStream('output.txt', 'utf8');	=> send data to output.txt
+		readStream.on('data', (chunk) =>{
+			writeStream.write(`new chunk: ${chunk}`);				=> writes chunks into output.txt
+		});
+
+	Compress file: zlib
+		const fs = require('fs');
+		const zlib = require('zlib');								=> import zlib
+		const gzip = zlib.createGzip();								=> follow documentation
+		const filename = 'test.txt';
+		const readStream = fs.createReadStream(filename, 'utf8');
+		const writeStream = fs.createWriteStream('output.txt.gz', 'utf8');	=> changed format to .gz because compressed file
+		readStream.pipe(gzip).pipe(writeStream);					=> pipe data from test.txt to gzip then pipe to output.txt.gz
+
+
+HTTP module: make file with "touch server.js"
+run by "node server.js" in command prompt then going to localhost:3000
+	const http = require('http');
+	const server = http.createServer((request, response) => {		=> request handler (code is triggered with every request), request = readable stream; request = writeable stream
+		response.writeHead(200,	{'Content-Type': 'text/html'});		=> 200 means everything is fine (like 404 means page doesn't exist). text/plain just displays plain text instead of html
+		response.write('<html>');									=> can write any HTML code like this
+		response.write('more HTML code');
+		response.write('</html)');
+		response.write('<html><body>Hey there</body></html>');		=> shorthand
+		response.end('end text');									=> response at the very end
+	})
+	server.listen(3000, () => {										=> port is 3000 (localhost)
+		console.log('server has started');
+	});
+
+Test response from website: using request object
+	"curl http://www.google.com" in command line
+
+	const http = require('http');
+	const server = http.createServer((request, response) => {		=> curl is a request, and the response will be coded below
+		const url = request.url;									=> checks what URL is
+		if (url === '/hello') {										=> does something with the result 
+			response.writeHead(200,	{'Content-Type': 'text/plain'});			
+			response.end('text');									=> is curl is used, output is "text"
+		}					
+	})
+	server.listen(3000, () => {						
+		console.log('server has started');
+	});
+	
+
+POST request: send request to server
+test with curl -d "param1=hello&param2=world" -X POST http://localhost:3000/post	=> sending "param" to server
+	const http = require('http');
+	const server = http.createServer((request, response) => {		
+		const url = request.url;	
+		const method = request.method;								=> shorthand can be const {url, method} = request; (ES6)			
+		if (method === 'POST' && url === '/post' {					=> checks request
+			let requestBody = []
+			request.on('data', (chunk) => {							=> do something with request because reable stream
+				requestBody.push(chunk);
+			}).on('end', () => {									=> same as request.on('end') but chained
+				requestBody = Buffer.concat(requestBody).toString();=> decode buffer to readable 
+				console.log(requestBody);
+				response.writeHead(200,	{'Content-Type': 'text/plain'});			
+				response.end('success');	
+			})	
+		}
+		else if (url === '/hello') {						
+			response.writeHead(200,	{'Content-Type': 'text/plain'});			
+			response.end('text1');								
+		} 
+		else {														=> if something goes wrong
+			response.writeHead(404,	{'Content-Type': 'text/plain'});			
+			response.end('could not find page');
+		}
+	})
+	server.listen(3000, () => {						
+		console.log('server has started');
+	});
+
+Serving up HTML file
+	const http = require('http');
+	const fs = require('fs');										-> need this
+	const server = http.createServer((request, response) => {		
+		const url = request.url;	
+		const method = request.method;										
+		if (method === 'POST' && url === '/post' {					
+			let requestBody = []
+			request.on('data', (chunk) => {							
+				requestBody.push(chunk);
+			}).on('end', () => {									
+				requestBody = Buffer.concat(requestBody).toString();
+				console.log(requestBody);
+				response.writeHead(200,	{'Content-Type': 'text/plain'});			
+				response.end('success');	
+			})	
+		}
+		else if (url === '/hello') {									=> if the url is localhost:3000/hello
+			const index = fs.readFileSync('./index.html', 'utf8');		=> assign the html file, curl will return the html file contents
+			response.writeHead(200,	{'Content-Type': 'text/html'});			
+			response.end('index');										=> serve the file						
+		} 
+		else {														
+			response.writeHead(404,	{'Content-Type': 'text/plain'});			
+			response.end('could not find page');
+		}
+	})
+	server.listen(3000, () => {						
+		console.log('server has started');
+	});
+
+NPM: www.npmjs.com
+to install a package: npm install -save express (express is a package name, -save adds it to dependancies)
+In file:
+	const express = require('express');								=> these lines replace the code above to handle serve requests and response
+	const bodyParser = require('body-parser');						=> parses through the input to server, makes easier to process
+	const app = express();
+	app.use(bodyParser.urlencoded({
+		extended:true
+	}))
+	app.get('/', (req, res) => {
+		res.send('welcome');
+	});
+	app.post('/new', (req, res) => {
+		console.log(req.body);										=> output parsed. can do req.body.name to access specific parts of input
+		res.send('POSTed OK');
+	});
+	app.listen(3000, () => {
+		console.log("server has started");
+	});
+curl -d "name=chris&node=cool" -X POST http://localhost:3000/new
+return: POSTed OK (client side), chris (on server side) 			=> confirm statment
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
