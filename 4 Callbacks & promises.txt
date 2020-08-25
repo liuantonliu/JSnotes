@@ -1,0 +1,203 @@
+Callbacks & asynchronous programming: a callback function is a function that is passed to another function as a parameter
+javascript is synchronous => runs in a certain order
+function that doesn't work as intended:
+	function first(){
+		setTimeout(() => {
+			console.log("first");
+		}, 1000);
+	}
+	function second(){ console.log("second"); }
+	first();
+	second();						=> if first is called, "first" should be logged before "second", but it is not the case
+solution: callbacks
+	function first(callback){ 				=> variable can be called anything
+		setTimeout(() => {
+			console.log("first");
+			callback();
+		}, 1000);
+	}	=> added "callback" parameter
+	function second(){ console.log("second"); }
+	first(second);						=> first function calls second function within itself (no () needed)
+if not sure passed in a function in var:
+	if (callback && typeof(callback) === "function"){ callback(); }
+
+example1: 							=> later improved with promises
+	function sumUpNumbers(num1, num2, cb){
+		let summedValue;
+		setTimeout(() => {
+			summedValue = num1 + num2;
+			cb(summedValue);
+		}, 1000)
+	}
+	function logSummedValue(val){ console.log(`Total is: ${val}`); }
+	sumUpNumbes(100, 150, logSummedValue);
+example2: impletement with HTML:
+	HTML: <div id="main"><button> click for data </button><p id="content"></p></div>
+	const myDiv = document.getElementById("main");
+	const myButton = myDiv.querySelector("button");
+	const fakeData = { text: "ajgwinwoo", }						=> fake data we get back from server
+	const myPara = document.getElementById("content");
+	myButton.AddEventListener("click", function(){ requestData(populateDOM); });	=> the function in here is a type of callback
+	function requestData(cb){
+		let data = "Loading..."							=> temporary text
+		cb(data);
+		setTimeout(() => { 
+			data = fakeData.text;
+			cb(data);							=> replacement text
+		}, 2000);								=> simulate a delated server response
+	}
+	function populateDOM(data){ myPara.innerText = `${data}`; }			=> put data in html (can just say = data)
+
+Problem with callbacks: callback hell
+example3:
+	function counter(){								=> multiple setTimeouts make it hard to track
+		setTimeout(() => {							=> outputs "first" then "second" then "third"
+			console.log("First");
+			setTimeout(() => {
+				console.log("Second");
+				setTimeout(() => {
+					console.log("Third");
+				}, 600);
+			}, 800);
+		}, 1000);
+	}			
+example4: another callback hell
+	function one(num, cb) { const first = num*num; cb(first); }
+	function two(num, cb) { const second = num/100; cb(second); }
+	function three(num1, num2, cb) { cb(num1+num2); }
+	function main(num1, num2, cb1, cb2, cb3){
+		cb1(num1, function(x){							=> x because callback function expects a number
+			cb2(num2, function(y){
+				cb3(x,y, function(result){ console.log(result); });	=> cb3 calls the function(result)
+			});
+		});
+	}
+	main(5, 10, one, two, three);
+
+
+
+Promises: another way to do callbacks, a proxy for a value not necessarily known when the promise is created, for async computations
+	represents a value that may be availble now, later, or never
+	exists in these states: pending, fulfilled, rejected.
+example5:
+	const testPromise = new Promise((resolve, reject) => {				=> ES6 function notation, also can be ..Promise(function(resolve, reject){
+		if(Math.random() > 0.5){ reject("promise no good!"); }			=> random reject
+		setTimeout(() => { resolve("promise OK!"); }, 1000);
+	});
+	testPromise.then((resolveMessage) => {						=> if the promise is resolved, resolveMessage can be named anything, but always takes on the values in resolve()
+		console.log(`Looks like: ${resolveMessage}`); 
+	}).then(() => {		 							=> callback added using.then. can be chained as many times as needed
+		console.log("run after promise is resolved");				
+	}).catch(() => {								=> if the promise is rejected
+		console.log(`Error: ${rejectMessage}`);					
+	});										=> ; at the very end
+example6: rewriting example1 from callback
+	function numAdder(n1, n2){
+		return new Promise((resolve, reject) => {				
+			const addedNums = n1 + n2;
+			setTimeout(() => { resolve(addedNums); }, 500);
+		});
+	}
+	numAdder(100,23).then((data) => { console.log(`Total: ${data}`); });		=> or .then((data) => console.log(...)); (ES6)
+	numAdder(100,23).then((data) => {						=> if there is another function numSquarer, 
+		return numSquarer(data);						=> invoke numSquarer instead of just console, NEED return to invoke the next .then
+	}).then((moreData) => { console.log(moreData)})					=> then squared data is calculated and returned
+	numAdder(100,23)								=> another simplified form because ES6
+		.then(data => numSquarer(data))						=> no brackets around data because only one term
+		.then(moreData => console.log(moreData))				=> no curly brackets or return because only one line
+		.catch(err => console.log(err));					=> same for error
+
+If the promise is always resolved:
+	instead of: new Promise((resolve, reject) => { resolve() })
+	do: Promise.resolve()
+example7: 
+	Promise.resolve()
+		.then(() => console.log("sgwo"))
+	Promise.resolve("str")
+		.then((data) => console.log(data))
+	function alwaysResolve(){ return Promise.resolve("str"); }
+	alwaysResolves().then(data => console.log(data))
+example8: promise as object
+	const prom = Promise.resolve([10,20,30]);
+	prom
+		.then(nums => nums.map(num => num*10))					=> goes through nums and multiply everything by 10
+		.then(transformedNums => console.log(transformedNums));			=> because it's always resolved, the resolved message is always passed in
+example9: inside and outside error
+	Promise.reject()
+		.then(
+			res => { console.log("yes"); },					=> if sucessful, give response, comma act like or
+			err => { console.log("no"); }					=> second argument is always for error. if there's an error (error handler in then statement)
+		).catch(data => console.log(data));					=> displays "no" instead of data
+example10:
+	Promise.resolve()
+		.then(
+			res => { return Promise.reject() },				=> promise within promise
+			err => { console.log("no"); }					
+		).then(
+			res => { console.log("yes"); },				
+			err => { console.log("no"); }					=> this runs after the insider promise is rejected
+		).catch(data => console.log(data));
+example11: similar to ex 3 in callback 
+	function timeLogger(message, time){
+		return new Promise((resolve, reject) => {
+			setTimeout(() => { resolve(message); }, time);			=> calls timeLogger promise below
+			if (typeof message !== "string" || typeof time!== "number){ reject(); } => check data type for error
+		});
+	}
+	timeLogger("first",1000)
+		.then(message => {
+			console.log(message);
+			return timeLogger("second", 800);				=> need return to go to next .then
+		})
+		.then(message => {							=> message is modified and passed down
+			console.log(message);
+			return timeLogger("third", 500);				
+		})
+		.then(message => {
+			console.log(message);
+			return timeLogger("fourth", 100);			
+		})
+		.then(message => {
+			console.log(message);
+		})
+		.catch(err => console.log(err));
+setTimeout in promises: need to initailize another promise to contain the setTimeout
+
+Promise.all: combines multiple promises
+	const p1 = Promise.resolve("A");			
+	const p2 = Promise.resolve("B");
+	const p3 = Promise.resolve("C");
+	Promise.all([p1,p2,p3])
+		.then(data => console.log(data));		=> output is ["A", "B", "C"]
+		.catch(err => console.log(err));
+	
+if one of the promises has a setTimeout, Promise,all will wait for it to finish
+if one of the promises is rejected, all will be rejected
+
+Promise.race:							=> outputs the promise that finishes first
+	Promise.race([p1,p2])
+		.then(data => console.log(data));	
+		.catch(err => console.log(err));
+if the fastest promise is rejected, all will be rejected
+if the slower promise is rejected, and fastest promise is resolved, performs fine
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+end
