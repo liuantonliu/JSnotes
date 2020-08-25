@@ -1,0 +1,124 @@
+OOP:
+in the function definition of an object, the data/methods inside is encapsulated (cannot be accessed)
+in classic OOP, a class (constructor) is defined, and when an instance is created, all the properties and methods are COPIED 
+
+
+OLD CLASSIC WAY (other languages):
+function ship() {
+	this.floats = true;
+	this.material = "steel";
+	this.whatAmI = function(){ console.log("hi" + this.material);
+}
+const myShip = new ship()
+const myObj = {
+	a:1,
+	b:2
+}
+const myObjCopy = Object.create(myObj); 	=> creates a exact copy with the same properties
+myObjCopy.a = 3;				=> changes value in an object
+myObj.hasOwnProperty("keyval")			=> checks if an object has key with certain name
+checks if the object inherited the property from another object (false if inherited)(true if inherited but changed later)
+
+
+JAVA PROTOTYPE WAY: each obj has a private property called prototype
+function animal(name,age,type){	=> creates a prototype, old way inherits from non declared prototypes
+	const obj = {};				=> long way to start an object
+	obj.name = name;
+	obj.age = age;
+	obj.type = type;
+	return obj;
+}
+function animal(name,age,type){	=> short way to start an object
+	this.name = name;
+	this.age = age;
+	this.type = type;
+}
+animal.prototype.sayType = function(){ console.log(this.type); }	=> create a function for animal prototype
+animal.prototype.hasOwnProperty("sayType"); 				=> returns true (Object.prototype.hOP,animal.hOP return false)
+const pig = new Animal("Spike",3,"pig");				=> create new instance dog1 which inherits from prototype animal, which inherits from prototype object
+const sheep = new Animal("spot",2,"sheep");				=> create new instance dog2
+if i want to change the function, i can just redefine the function again like normal (NEVER write Object.prototype.funcName: will add function to all objects)
+
+Nested objects: inheriting from other objects
+function dog(name,age,breed){
+	animal.call(this, name, age);		=> inherit name and age from animal (not type)
+	this.breed = breed;			=> start its own property
+}						=> however, the functions defined for animal but outside of animal is not inherited
+dog.prototype = Object.create(animal.prototype);=> inherit functions from animal
+dog.prototype.constructor = dog;		=> the line above redefines the whole dog constructor, need to change the base constructor back to dog
+const barky = new dog("barky",1,"chihuahua");	=> new dog object
+dog instanceof animal 				=> checks if dog is inheriting from animal (true) (can be many levels up)
+
+
+
+CLASSES:	simplifies prototyped based inheritance
+	class animal {					=> or do const animal = class {
+		constructor(name,age,type){
+			this.name = name;
+			this.age = age;
+			this.age = type;
+		}
+		animalFunc(){ //code; }			=> function for this class, can be redefined as the old way
+		static sayDogNames(d1,d2){ consle.log(`${c1.name}, ${c2.name}`);	=> accessed with animal.sayDogNames(dog1,dog2); (dog1 and dog2 are instances of dog, can use ...dogs to pass in as many dog objects as i want)
+	}
+	const pig = new Animal("Spike",3,"pig");	=> have to make new instance after class is declared (class is not hoisted)
+	class dog extends animal {
+		constructor(name, age, breed){		=> can pass in object with constructor({name="str1", age=num1, breed}){	
+			super(name, age);		=> inherit from superclass
+			this.breed = breed;
+			this.gender = "male";		=> DON'T HAVE TO DECLARE THIS IN CONSTRUCTOR (can be accessed regularly)
+		}
+		dogFunc1(){ super.animalFunc(); }	=> inherit function from superclass (or something like const str = super.animalFunc();)
+		static dogFunc2(){ //code; }		=> static method (cannot be used on instances, only on the class itself => dog.dogFunc2();
+	}
+ 
+Grouping without inheritance: a different design pattern. extending many classes together is excessive
+	class familyMember {							=> instead of class family, class parent extends family, class child extends family...
+		constructor(lastname, firstname, relationship){
+			this.lastname = lastname;
+			this.firstname = firstname;
+			this.relationship = relationship;
+		}
+		sayFmilyName(){ console.log(`we are the ${this.lastname}s`)
+	}
+	class family {
+		constructor(parents=[], children=[]){
+			this.parents = parents;
+			this.children = children;
+		}
+		add child(member){ this.children.push(member);
+	const dad = new familyMember("smith", "bill", "father");
+	const mom... const child1... const child2
+	const theSmiths = new family([dad,mom]);
+	theSmiths.addMember(child1);
+
+Functions and looping:				=> converting to arr (easy to work with)
+	const smithFamily = {
+		1:["smitih", "bill", "father"],
+		2:[ //data ],
+		3:[ //data ],
+	}
+	const createFmaily = (famObj) => {
+		const fam = new Family();		=> using family class above
+		for(const prop of famObj){
+			const [last,first,relationship] = famObj[prop];
+			const newMember = new FamilyMember(last,first,relationship);
+			if(relationship === "father" || relationship === "mother"){
+				fam.parents.push(newMember);
+			}else{
+				fam.children.push(newMember);
+			}
+		}
+		return fam;
+	}
+	const theSmiths = createFamily(smithFamily);
+
+
+
+
+
+
+
+
+
+end
