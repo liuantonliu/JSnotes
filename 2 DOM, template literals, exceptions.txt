@@ -1,0 +1,201 @@
+DOM: document object model,programming interface for HTML & XML documents, methods to access and manipulate the document
+DOCUMENT CAN BE REPLACED BY ANY ELEMENT NAME
+<body onload="window.alert('text')">					=> inline js in html
+<body onload="showText()">, function showText(){window.alert("text")}	=> function in js
+console.log(document) 							=> access document and methods (API)
+console.log(document.body)						=> look at what we can do to the body tag
+document.body.innerText = "text" 					=> changes body text
+document.body.innerHTML = "<h1> text </h1> 				=> adds and formats html
+const var = document.getElementsByTagName("P"); console.log(var);	=>shows everything with the p tag in an arr, use var[num].innerHTML to access one of them
+const var1 = document.getElementById("idname");				=> access with id name
+const var2 = var1.document.getElementByTagName("tagname");		=> acesss a element within the id element var1
+document.getElementById("idname").value;				=> access the value inside an element
+
+DOM query selectors:	more for css	can be used on tagname, .className, or #idname
+const var = document.querySelector("tagName");	var.style.color = "green";	=> set first occurance of tagName's css color to green
+const var = document.querySelectorAll(".className");	for(const item of var){item.style.color = "green";}	=> selects all occurances with className and change color to green, use ".className innertagName" to be more specific
+important: queryselector(All) doesn't detect the elements added later with javascript, use .getElementByClassName instead 
+
+Traversing the DOM:
+var.parentNode.style.color = "green";	=> sets var's parent tag's color to green
+var.childNodes => access the child tags of var
+var.childNodes[0] => acess the first item of var's child nodes
+
+Getting and setting ID and Class:
+const var = document.getElementById("idname");
+const idName = var.id;				=> extract id name
+var.id = "replaceid"				=> change id name
+const var = element.className;			=> extract class name
+var.className = "replaceClass"  		=> change class name
+var.className += " addClass"			=> add class to element
+var.classList.add("addClass1", "addClass2")	=> another way to add class
+var.classList.remove("class")			=> remove class name from element
+var.classList.toggle("class") 			=> adds or removes class depents on if it's already there
+
+
+Creating, appending, and removing elements:
+const var1 = document.getElementById("idname");
+const var2 = document.createElement("tagname");
+var1.appendChild(var2); 
+var1.removeChild(var2);
+
+Data/dataset: like class and id, but for storing data for a certain div
+<div id="user" data-id="1234567890" data-user="johndoe" data-date-of-birth>John Doe</div>
+access with: 	const  element = document.getElementById("user");
+		const num1 = element.dataset.user;
+	
+
+Events: any event that makes place in the DOM (can be user generated or by an API)
+document.addEventListener("eventName", function(){ code//; })	=> listens for event to fire and calls a function
+event can be a var => function(event){console.log(event.type);}
+document.addEventListener("eventName", funcName);		=>to activate function declared elsewhere (no () after funcName), function needs to be defined above if arrow func is used
+var.removeEventListener("eventName", funcName);			=>to remove the event listener on a element
+function funcName(e){e.stopPropagation();}			=> stops event of inner element triggering event in outer element
+const targNode = e.target.nodeName;				=> get the tagname of the event target
+e.preventDefault();	=> prevents default move from happening (such as opening a link)
+function funcName(e){e.target.value} 				=> do stuff with the value of the target 
+Key events: use e.keyCode to access 
+window.addEventListener("load", funcName); 			=>wait until everything is loaded, then runs function
+
+events: onkeyup, keydown, DOMContentLoaded, click,
+https://www.w3schools.com/js/js_events_examples.asp
+
+
+
+
+Template Literals: string literals that allows embedded expressions
+makes it easier to create multiline strings and allow string interpoloation
+instead of using "" or '', use ``
+ex1. Add html to existing document with old way, not very effective:
+	const var = 
+		"<ul>\n" + 
+			"<li>item1</li>\n" +
+		"</ul>";
+	var1.innerHTML = var;
+	Instead:	
+	const var = 			=> just use `` at front and end, and write as usual
+		`<ul>
+			<li>item1</li>
+		</ul>`;
+ex2. concat strings:
+	old way: "string1" + var1 + "string2"
+	instead: `string1 ${var1} ${var2===true} ${var3*var4} string2 ${arr.map((num) => `${num+5}`)}`	=> type as usual, use ${} around var & `` at front and end
+ex3. HTML
+	const var = (
+		`<div>
+			<ul>
+				${arr.map((var) => `<li>${var}</li>`).join("\n	")}
+			</ul>
+		</div>`
+	);
+ex4. parsing template literals		=> takes in TLs and disects into different componnets
+const tl = tlparser`I am ${name}, age ${age}`;
+function tlparser(arrOFstr,exp1,exp2){console.log(`${arrOFstr}, ${exp1}, ${exp2}`);}
+result:	arrOFstr = "I am, , age" , exp1 = name, exp2 = age
+	
+
+Destructuring: extract data from arrays or objects into distinct variables
+CONST HERE CAN BE REPLACED BY LET
+Destructuring arrs:
+	const arr = [1,2,3];				=> initalize arr
+	const [x,y,z] = arr; 				=> each variable inherits data from arr
+	const [x,y,z, var="str"] = arr;			=> can define default values within
+	const [x, ,z] = arr;				=> skip values
+	[var1, var2] = [var2, var1]; 			=> switching 2 variable values (doesn't have to be in an arr)
+Destructuring objects:
+	const obj = {item1: "prop1", item2: "prop2"};
+	const {item1, item2} = obj;			=> then item1 and item2 can be used as regular variables (the names has to be equal to the key names in the object)
+	const {item2, item1} = obj;			=> item 1 and 2 will still inherit the same values as the line above
+	const item1, item2;
+	({item1, item2} = obj);				=> use brackets around to tell the interpreter {} is destructuring instead of a block of code to run
+	const {item1: var1, item2: var2} = obj;		=> use other names (var1, var2) to replace predefined key names, can then be accessed like regular var
+	const {item1, item2, item3 = 30} = obj;		=> define default values like before (if item3 is defined in obj, then 30 will be replaced)
+	function funcName({item1}){console.log(item1);}	funcName(obj);	=> instead of passing in object, function will look for key name item1 in obj and output the value
+	for (const [index,prop] of obj.entries()){ //code with index and prop; }	=> destructuring array in object with loop
+Nested Objects:
+	const obj = {item1: var1, item2: [{item21: var21, item22: var22},],}
+	const {item1, item2:[{item21, item22}]} = obj;	=> use item1, item2, item21, item 22 normally
+	const obj = {item1: var1, item2: [10,20],}
+	const {item1, item2:[x,y]} = obj;		=> simplified nested, can use [ ,y] if don't want x
+if obj has multiple obj nested inside:
+	const obj = {
+		item1: var1, 
+		item2: [
+			{item21: var21, item22: var22},
+			{item21: var21, item22: var22}
+		],
+	}
+	const {item1, item2} = obj;
+	for (const {item21, item22} of item2){ //code with item21 and item22; }
+
+
+
+Throw Exceptions: exception/error handling
+throw "error message";		=> can also throw numbers or boolean
+function funcName(message){	=> more customizable error throwing
+	this.name = "my exception";
+	this.message = message; 
+	this.toString = function(){return this.name + ": " + this.message;}
+}
+throw new funcName("error message");
+Try...catch: allows code to keep running after throwing exception
+try{ //code; } catch(e){ //code; }	=> e can be named as anything, must be passed, basically error type
+finally statement: code that always runs after try catch (even if there is a return statement elsewhere)
+if an error is thrown in try, catch will run too. finally will override anything try/catch does such as return values
+if return in finally, throw in catch statement will be overridden;
+try{ consle.log("hi"); throw "test"; } catch(e){ console.log(e); return true; } finally { console.log("always run"; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+getting variables from input
+var varname = ""; => global variable that can be used in other funcs
+function onLoadFunction(){
+	var varnametemp = document.getElementById("txtinput").value;
+	var varnametemp = parseInt(document.getElementById("txtinput").value) => for taking in numbers;
+	varname = varnametemp; 
+}
+
+Function to make sure input is only numbers:
+function intCheck(a){			
+	a = (a)? a : window.event; => if statement
+	var x = (a.which) ? a.which : a.keyCode;
+	if (x> 31 && (x<48 || x>57)){
+		return false;
+	}
+		return true;
+}
+
+
+changing html in JS:
+document.getElementById("id").style.color = "red"; (fontFamily = "helvetica, fontSize = "90px")
+document.getElementById("idname").innerHTML = "changed text";
+
+in HTML:
+<button onclick="funcName()"> btn txt </button>
+<input type="text" id="txtinput">
+<input type="number" id="txtinput" onkeypress="return intCheck(event)">
+
+
+<span>
+<textarea>
+<form>
+
+.toLocaleString()
